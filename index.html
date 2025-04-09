@@ -67,6 +67,13 @@
       margin-top: 1rem;
     }
 
+    .premio {
+      font-size: 1.5rem;
+      color: #ffdf00;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+
     @media (max-width: 480px) {
       h1, h2 {
         font-size: 1.5rem;
@@ -101,6 +108,7 @@
   <div class="resultado" id="resultado">
     <h2>Juego terminado</h2>
     <p id="puntajeFinal"></p>
+    <p id="premioMensaje" class="premio"></p>
     <button onclick="reiniciarJuego()">Jugar de nuevo</button>
   </div>
 
@@ -137,6 +145,7 @@
 
     let preguntaActual = 0;
     let puntaje = 0;
+    let puntajeMaximo = localStorage.getItem('puntajeMaximo') || 0;
 
     function empezarJuego() {
       document.querySelector('.intro').style.display = 'none';
@@ -183,6 +192,15 @@
       document.querySelector(".quiz-container").style.display = "none";
       document.querySelector(".resultado").style.display = "block";
       document.getElementById("puntajeFinal").textContent = `Tu puntaje final fue: ${puntaje}`;
+
+      // Verificar si el jugador tiene el puntaje más alto
+      if (puntaje > puntajeMaximo) {
+        puntajeMaximo = puntaje;
+        localStorage.setItem('puntajeMaximo', puntajeMaximo);
+        document.getElementById("premioMensaje").textContent = "¡Felicidades! Has alcanzado el puntaje más alto. 🎉";
+      } else {
+        document.getElementById("premioMensaje").textContent = `Puntaje más alto actual: ${puntajeMaximo}`;
+      }
     }
 
     function reiniciarJuego() {

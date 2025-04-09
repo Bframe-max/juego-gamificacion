@@ -1,186 +1,166 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
   <title>Juego de Seguridad Informática</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #0e0e2c;
-      color: #fff;
-      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #1a1a2e;
+      color: white;
+      margin: 0;
+      padding: 0;
       text-align: center;
     }
 
-    h1 {
-      color: #00ffe1;
+    .intro, .quiz-container, .resultado {
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+      display: none;
     }
 
-    .question-card {
-      background: #1c1c3c;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 0 10px #00ffe1;
+    .intro {
+      display: block;
     }
 
     button {
-      margin: 8px;
       padding: 10px 20px;
-      background: #00ffe1;
-      color: #000;
+      font-size: 1rem;
+      background: #e94560;
+      color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      font-weight: bold;
-      transition: background 0.3s;
+      margin-top: 1rem;
     }
 
-    button:hover {
-      background: #00d1c0;
+    .pregunta {
+      margin-top: 2rem;
     }
 
-    .score {
-      font-size: 1.2em;
-      margin-top: 20px;
-      color: #ffde59;
+    .opciones button {
+      display: block;
+      margin: 0.5rem auto;
+      width: 100%;
+      max-width: 300px;
     }
 
-    .footer {
-      margin-top: 40px;
-      font-size: 0.9em;
-      color: #aaa;
-    }
-
-    .timer {
-      font-size: 1.2em;
-      margin-bottom: 10px;
-      color: #ff6b6b;
+    .puntaje {
+      font-size: 1.2rem;
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
-  <h1>🛡️ Juego de Seguridad Informática</h1>
-  <div class="timer" id="timer">Tiempo restante: 60s</div>
-  <div id="quiz-container"></div>
-  <div class="score" id="score"></div>
-  <div class="footer" id="footer"></div>
+
+  <div class="intro">
+    <h1>Bienvenido al juego de Seguridad Informática</h1>
+    <p>Hola, soy <strong>Denzel Tiffer</strong> y este es un juego interactivo para ayudarte a aprender conceptos básicos de seguridad informática como phishing, adware, contraseñas seguras, y más.</p>
+    <p>Responde correctamente para ganar puntos. Si fallás, perderás puntos. ¡Ponete las pilas! 💪</p>
+    <button onclick="empezarJuego()">Empezar</button>
+  </div>
+
+  <div class="quiz-container">
+    <h2 id="pregunta"></h2>
+    <div class="opciones" id="opciones"></div>
+    <div class="puntaje" id="puntaje">Puntaje: 0</div>
+  </div>
+
+  <div class="resultado" id="resultado">
+    <h2>Juego terminado</h2>
+    <p id="puntajeFinal"></p>
+    <button onclick="reiniciarJuego()">Jugar de nuevo</button>
+  </div>
 
   <script>
-    const quiz = [
+    const preguntas = [
       {
-        question: "¿Qué es el phishing?",
-        options: [
+        pregunta: "¿Qué es el phishing?",
+        opciones: [
+          "Un ataque que intenta engañar a las personas para obtener información confidencial",
           "Un tipo de antivirus",
-          "Una técnica para engañar y robar información",
-          "Un archivo de respaldo",
-          "Un sistema de firewall"
+          "Una técnica para mejorar la velocidad de internet"
         ],
-        answer: 1
+        correcta: 0
       },
       {
-        question: "¿Qué es un adware?",
-        options: [
-          "Un software que bloquea virus",
-          "Un programa que muestra publicidad no deseada",
-          "Una herramienta para hacer backups",
-          "Un servidor web seguro"
+        pregunta: "¿Qué es un adware?",
+        opciones: [
+          "Un software que muestra publicidad no deseada",
+          "Un programa para proteger contraseñas",
+          "Una red segura"
         ],
-        answer: 1
+        correcta: 0
       },
       {
-        question: "¿Cuál es una buena práctica de contraseña segura?",
-        options: [
-          "Usar tu fecha de cumpleaños",
-          "12345678",
-          "Usar letras, números y símbolos",
-          "El nombre de tu mascota"
+        pregunta: "¿Cuál de estas es una contraseña segura?",
+        opciones: [
+          "123456",
+          "MiNombre2023",
+          "T!ff3r$_S3gur1dad#"
         ],
-        answer: 2
-      },
-      {
-        question: "¿Qué puede hacer un malware?",
-        options: [
-          "Proteger tus archivos",
-          "Actualizar tu sistema",
-          "Robar o dañar tu información",
-          "Mejorar tu red Wi-Fi"
-        ],
-        answer: 2
-      },
-      {
-        question: "¿Qué hacer si recibes un correo sospechoso con enlace?",
-        options: [
-          "Hacer clic rápidamente",
-          "Ignorarlo y reenviarlo a tus contactos",
-          "Verificar la fuente y no hacer clic",
-          "Responder pidiendo más información"
-        ],
-        answer: 2
+        correcta: 2
       }
     ];
 
-    let currentQuestion = 0;
-    let score = 0;
-    let timeLeft = 60;
-    let timerInterval;
+    let preguntaActual = 0;
+    let puntaje = 0;
 
-    const container = document.getElementById("quiz-container");
-    const scoreDisplay = document.getElementById("score");
-    const footer = document.getElementById("footer");
-    const timerDisplay = document.getElementById("timer");
-
-    function startTimer() {
-      timerInterval = setInterval(() => {
-        timeLeft--;
-        timerDisplay.textContent = `Tiempo restante: ${timeLeft}s`;
-
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          endGame(true);
-        }
-      }, 1000);
+    function empezarJuego() {
+      document.querySelector('.intro').style.display = 'none';
+      document.querySelector('.quiz-container').style.display = 'block';
+      mostrarPregunta();
     }
 
-    function showQuestion() {
-      if (currentQuestion >= quiz.length) {
-        clearInterval(timerInterval);
-        endGame(false);
-        return;
-      }
+    function mostrarPregunta() {
+      const q = preguntas[preguntaActual];
+      document.getElementById("pregunta").textContent = q.pregunta;
 
-      const q = quiz[currentQuestion];
-      let html = `<div class="question-card"><h2>${q.question}</h2>`;
-      q.options.forEach((opt, index) => {
-        html += `<button onclick="checkAnswer(${index})">${opt}</button>`;
+      const opcionesDiv = document.getElementById("opciones");
+      opcionesDiv.innerHTML = "";
+
+      q.opciones.forEach((opcion, index) => {
+        const btn = document.createElement("button");
+        btn.textContent = opcion;
+        btn.onclick = () => verificarRespuesta(index);
+        opcionesDiv.appendChild(btn);
       });
-      html += `</div>`;
-      container.innerHTML = html;
+
+      document.getElementById("puntaje").textContent = `Puntaje: ${puntaje}`;
     }
 
-    function checkAnswer(selected) {
-      const correct = quiz[currentQuestion].answer;
-      if (selected === correct) {
-        score++;
+    function verificarRespuesta(seleccionada) {
+      const correcta = preguntas[preguntaActual].correcta;
+
+      if (seleccionada === correcta) {
+        puntaje += 10;
       } else {
-        score = Math.max(score - 1, 0); // No permite puntaje negativo
+        puntaje -= 5;
       }
-      currentQuestion++;
-      showQuestion();
+
+      preguntaActual++;
+
+      if (preguntaActual < preguntas.length) {
+        mostrarPregunta();
+      } else {
+        finalizarJuego();
+      }
     }
 
-    function endGame(timeout = false) {
-      container.innerHTML = timeout 
-        ? "<h2>⏰ ¡Tiempo agotado!</h2>" 
-        : "<h2>🎉 Juego terminado</h2>";
-      scoreDisplay.innerHTML = `Puntaje final: ${score} / ${quiz.length}`;
-      footer.innerHTML = "🔒 Hecho con 💻 por Denzel Tiffer";
+    function finalizarJuego() {
+      document.querySelector(".quiz-container").style.display = "none";
+      document.querySelector(".resultado").style.display = "block";
+      document.getElementById("puntajeFinal").textContent = `Tu puntaje final fue: ${puntaje}`;
     }
 
-    // Inicia el juego
-    showQuestion();
-    startTimer();
+    function reiniciarJuego() {
+      preguntaActual = 0;
+      puntaje = 0;
+      document.querySelector(".resultado").style.display = "none";
+      document.querySelector(".quiz-container").style.display = "block";
+      mostrarPregunta();
+    }
   </script>
 </body>
 </html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Juego de Seguridad Informática</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0e0e2c;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #00ffe1;
+    }
+
+    .question-card {
+      background: #1c1c3c;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 10px #00ffe1;
+    }
+
+    button {
+      margin: 8px;
+      padding: 10px 20px;
+      background: #00ffe1;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #00d1c0;
+    }
+
+    .score {
+      font-size: 1.2em;
+      margin-top: 20px;
+      color: #ffde59;
+    }
+
+    .footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #aaa;
+    }
+
+    .timer {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      color: #ff6b6b;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛡️ Juego de Seguridad Informática</h1>
+  <div class="timer" id="timer">Tiempo restante: 60s</div>
+  <div id="quiz-container"></div>
+  <div class="score" id="score"></div>
+  <div class="footer" id="footer"></div>
+
+  <script>
+    const quiz = [
+      {
+        question: "¿Qué es el phishing?",
+        options: [
+          "Un tipo de antivirus",
+          "Una técnica para engañar y robar información",
+          "Un archivo de respaldo",
+          "Un sistema de firewall"
+        ],
+        answer: 1
+      },
+      {
+        question: "¿Qué es un adware?",
+        options: [
+          "Un software que bloquea virus",
+          "Un programa que muestra publicidad no deseada",
+          "Una herramienta para hacer backups",
+          "Un servidor web seguro"
+        ],
+        answer: 1
+      },
+      {
+        question: "¿Cuál es una buena práctica de contraseña segura?",
+        options: [
+          "Usar tu fecha de cumpleaños",
+          "12345678",
+          "Usar letras, números y símbolos",
+          "El nombre de tu mascota"
+        ],
+        answer: 2
+      },
+      {
+        question: "¿Qué puede hacer un malware?",
+        options: [
+          "Proteger tus archivos",
+          "Actualizar tu sistema",
+          "Robar o dañar tu información",
+          "Mejorar tu red Wi-Fi"
+        ],
+        answer: 2
+      },
+      {
+        question: "¿Qué hacer si recibes un correo sospechoso con enlace?",
+        options: [
+          "Hacer clic rápidamente",
+          "Ignorarlo y reenviarlo a tus contactos",
+          "Verificar la fuente y no hacer clic",
+          "Responder pidiendo más información"
+        ],
+        answer: 2
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let timeLeft = 60;
+    let timerInterval;
+
+    const container = document.getElementById("quiz-container");
+    const scoreDisplay = document.getElementById("score");
+    const footer = document.getElementById("footer");
+    const timerDisplay = document.getElementById("timer");
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `Tiempo restante: ${timeLeft}s`;
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          endGame(true);
+        }
+      }, 1000);
+    }
+
+    function showQuestion() {
+      if (currentQuestion >= quiz.length) {
+        clearInterval(timerInterval);
+        endGame(false);
+        return;
+      }
+
+      const q = quiz[currentQuestion];
+      let html = `<div class="question-card"><h2>${q.question}</h2>`;
+      q.options.forEach((opt, index) => {
+        html += `<button onclick="checkAnswer(${index})">${opt}</button>`;
+      });
+      html += `</div>`;
+      container.innerHTML = html;
+    }
+
+    function checkAnswer(selected) {
+      const correct = quiz[currentQuestion].answer;
+      if (selected === correct) {
+        score++;
+      } else {
+        score = Math.max(score - 1, 0); // No permite puntaje negativo
+      }
+      currentQuestion++;
+      showQuestion();
+    }
+
+    function endGame(timeout = false) {
+      container.innerHTML = timeout 
+        ? "<h2>⏰ ¡Tiempo agotado!</h2>" 
+        : "<h2>🎉 Juego terminado</h2>";
+      scoreDisplay.innerHTML = `Puntaje final: ${score} / ${quiz.length}`;
+      footer.innerHTML = "🔒 Hecho con 💻 por Denzel Tiffer";
+    }
+
+    // Inicia el juego
+    showQuestion();
+    startTimer();
+  </script>
+</body>
+</html>
